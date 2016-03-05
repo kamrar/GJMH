@@ -80,3 +80,4 @@ atlassian-ide-plugin.xml
 # ---------
 /incoming-distributions
 /intTestHomeDir
+.vertx
