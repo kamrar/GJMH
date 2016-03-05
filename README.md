@@ -1,4 +1,4 @@
-diagrams-svg [![Build Status](https://travis-ci.org/kamrar/gdzie_jest_moj_hajs.svg?branch=master](https://travis-ci.org/kamrar/gdzie_jest_moj_hajs)
+diagrams-svg [![Build Status](https://travis-ci.org/kamrar/gdzie_jest_moj_hajs.svg?branch=master)](https://travis-ci.org/kamrar/gdzie_jest_moj_hajs.svg)
 ------------
 
 # Installation
@@ -9,3 +9,4 @@ diagrams-svg [![Build Status](https://travis-ci.org/kamrar/gdzie_jest_moj_hajs.s
 
 # Usage
 
+Write code!!
