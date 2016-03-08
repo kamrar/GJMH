@@ -3,7 +3,7 @@ package pl.kamrar.zarcie;
 import io.vertx.core.Vertx;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import pl.kamrar.zarcie.example.complex.GlobalRouter;
+import pl.kamrar.zarcie.example.complex.verticle.config.GlobalRouter;
 
 @SpringBootApplication
 public class Application {

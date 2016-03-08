@@ -26,6 +26,7 @@ dependencies {
     compile('io.vertx:vertx-core:3.2.1')
     compile('io.vertx:vertx-web:3.2.1')
     compile('io.vertx:vertx-rx-java:3.2.1')
+    testCompile('io.vertx:vertx-unit:3.2.1')
     testCompile('junit:junit:4.12')
 }
 

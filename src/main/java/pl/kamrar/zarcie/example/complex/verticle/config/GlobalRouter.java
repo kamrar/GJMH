@@ -1,4 +1,4 @@
-package pl.kamrar.zarcie.example.complex;
+package pl.kamrar.zarcie.example.complex.verticle.config;
 
 import io.vertx.core.Future;
 import io.vertx.rxjava.core.AbstractVerticle;

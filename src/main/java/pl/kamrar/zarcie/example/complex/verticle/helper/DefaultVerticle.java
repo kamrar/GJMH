@@ -1,4 +1,4 @@
-package pl.kamrar.zarcie.example.complex;
+package pl.kamrar.zarcie.example.complex.verticle.helper;
 
 import io.vertx.core.Vertx;
 import io.vertx.rxjava.core.AbstractVerticle;
@@ -11,4 +11,6 @@ public abstract class DefaultVerticle extends AbstractVerticle {
     void init() {
         Vertx.vertx().deployVerticle(this);
     }
+
+    public abstract void start() throws Exception;
 }
