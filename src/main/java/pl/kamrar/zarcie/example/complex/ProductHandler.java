@@ -1,6 +1,7 @@
 package pl.kamrar.zarcie.example.complex;
 
 import io.vertx.core.json.Json;
+import io.vertx.rxjava.ext.web.Router;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,15 +13,15 @@ public class ProductHandler extends DefaultVerticle {
     private static final String API_V1_PRODUCT = "/api/v1/product";
 
     @Autowired
-    private GlobalRouter globalRouter;
+    private Router globalRouter;
 
     private Product product = new Product(0, "test");
 
     @Override
     public void start() throws Exception {
-        globalRouter.router().get(API_V1_PRODUCT).handler(this::getAll);
-        globalRouter.router().get(API_V1_PRODUCT + "/:id").handler(this::getOne);
-        globalRouter.router().post(API_V1_PRODUCT).handler(this::addOne);
+        globalRouter.get(API_V1_PRODUCT).handler(this::getAll);
+        globalRouter.get(API_V1_PRODUCT + "/:id").handler(this::getOne);
+        globalRouter.post(API_V1_PRODUCT).handler(this::addOne);
     }
 
     private void getAll(RoutingContext routingContext) {

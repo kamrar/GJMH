@@ -11,13 +11,12 @@ import org.springframework.stereotype.Component;
 public class ComplexStaticServer extends DefaultVerticle {
 
     @Autowired
-    private GlobalRouter globalRouter;
+    private Router globalRouter;
 
     @Override
     public void start() throws Exception {
-        Router router = globalRouter.router();
         vertx.createHttpServer()
-                .requestHandler(router::accept)
+                .requestHandler(globalRouter::accept)
                 .listen(8080);
     }
 }

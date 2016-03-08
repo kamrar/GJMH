@@ -1,23 +1,23 @@
 package pl.kamrar.zarcie.example.complex;
 
-import io.vertx.rxjava.core.Future;
+import io.vertx.core.Future;
+import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.ext.web.Router;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-@Order(0)
-public class GlobalRouter extends DefaultVerticle {
+@Configuration
+public class GlobalRouter extends AbstractVerticle {
 
-    private Router router;
+    private static Router router;
 
     @Override
-    public void start() throws Exception {
+    public void start(Future<Void> future) throws Exception {
         router = Router.router(vertx);
     }
 
-    public Router router() {
-        Future.future().complete(router);
+    @Bean
+    Router router() {
         return router;
     }
 }
