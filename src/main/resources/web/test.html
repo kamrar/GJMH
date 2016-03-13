@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id"
+          content="94625739913-sv6j34ghs9lihlam9s89nue303todlq1.apps.googleusercontent.com">
+    <title>Title</title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script>
+        function onSignIn(googleUser) {
+            var profile = googleUser.getBasicProfile();
+
+            var profileJson = {
+                "id": googleUser.getAuthResponse().id_token,
+                "name": profile.getGivenName(),
+                "surname": profile.getFamilyName(),
+                "email": profile.getEmail(),
+                "image": profile.getImageUrl()
+            };
+
+            $.post("/api/v1/authentication", JSON.stringify(profileJson), function () {
+
+            }, "json");
+
+
+        }
+    </script>
+</head>
+<body>
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+</body>
+</html>

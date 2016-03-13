@@ -4,6 +4,7 @@ import io.vertx.core.Vertx;
 import io.vertx.rxjava.core.AbstractVerticle;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 public abstract class DefaultVerticle extends AbstractVerticle {
 
