@@ -4,6 +4,7 @@ import io.vertx.core.Vertx;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import pl.kamrar.gjmh.verticle.config.GlobalRouter;
+import pl.kamrar.gjmh.verticle.mongo.MongoServiceVerticle;
 
 @SpringBootApplication
 public class Application {
@@ -17,6 +18,7 @@ public class Application {
      */
     private void deployVerticles() {
         Vertx.vertx().deployVerticle(new GlobalRouter());
+        Vertx.vertx().deployVerticle(new MongoServiceVerticle());
     }
 
     public static void main(String[] args) {
