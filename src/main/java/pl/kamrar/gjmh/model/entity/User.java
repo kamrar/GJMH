@@ -1,4 +1,8 @@
-package pl.kamrar.gjmh.model.persisted.entity;
+package pl.kamrar.gjmh.model.entity;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -6,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
+@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -13,13 +19,5 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-
-    protected User() {
-    }
-
-    public User(String firstName, String lastName, String email) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
+    private String image;
 }
