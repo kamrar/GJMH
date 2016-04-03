@@ -1,18 +1,19 @@
 package pl.kamrar.gjmh.verticle.config;
 
+import io.vertx.core.Future;
+import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.ext.mongo.MongoClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 @Configuration
-public class GlobalMongoClient extends DefaultVerticle{
+public class GlobalMongoClient extends AbstractVerticle{
 
-    MongoClient mongoClient;
+    private static MongoClient mongoClient;
 
     @Override
-    public void start() throws Exception {
+    public void start(Future<Void> future) throws Exception {
 
         JsonObject config = new JsonObject()
                 .put("db_name", "gjmh")
