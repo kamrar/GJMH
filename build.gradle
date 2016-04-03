@@ -1,44 +1,24 @@
-group 'pl.kamrar.gjmh'
-version '0.0.1-SNAPSHOT'
+allprojects{
 
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'spring-boot'
-apply plugin: 'nebula.provided-base'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
-        classpath("com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3")
-    }
+    group 'pl.kamrar.gjmh'
+    version '0.0.1-SNAPSHOT'
+    
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    
+	buildscript {
+		repositories {
+			mavenLocal()
+			mavenCentral()
+		}
+	}
+	
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	
 }
 
-repositories {
-    mavenCentral()
-}
+apply from: 'gradle/profiles.gradle'
 
-dependencies {
-    compile('org.springframework.boot:spring-boot-starter')
-    compile("org.springframework.boot:spring-boot-devtools")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("com.h2database:h2")
-    compile('io.vertx:vertx-core:3.2.1')
-    compile('io.vertx:vertx-web:3.2.1')
-    compile('io.vertx:vertx-rx-java:3.2.1')
-    testCompile('io.vertx:vertx-unit:3.2.1')
-    testCompile('junit:junit:4.12')
-    provided('org.projectlombok:lombok:1.16.8')
-}
-
-jar {
-    baseName = 'zarcie-app'
-    manifest {
-        attributes 'Main-Class': 'pl.kamrar.zarcie.Application'
-    }
-}
