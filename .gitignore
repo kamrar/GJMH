@@ -16,7 +16,7 @@ hs_err_pid*
 .gradle
 /build
 /buildSrc/build
-/subprojects/*/build
+*/build
 /subprojects/docs/src/samples/*/*/build
 
 # IDEA
