@@ -17,7 +17,7 @@ public class ProductHandler extends DefaultVerticle {
     @Autowired
     private Router router;
 
-    private Product product = new Product(0, "test");
+    private Product product = new Product(0, "test", 2.2);
 
     @Override
     public void start() throws Exception {
