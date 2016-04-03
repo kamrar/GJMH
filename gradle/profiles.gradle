@@ -3,7 +3,7 @@ subprojects{
  def devProfile='dev'
  def testProfile='test'
 
- def propertyDrivenProfiles = project.hasProperty('profile') ? profile : devProfile
+ def propertyDrivenProfiles = project.hasProperty('profile') ? profile : ext.set ("profile", devProfile)
  setProperty 'profile', propertyDrivenProfiles
 
  

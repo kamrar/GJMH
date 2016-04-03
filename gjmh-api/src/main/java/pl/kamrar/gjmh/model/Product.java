@@ -1,4 +1,4 @@
-package pl.kamrar.gjmh.entity;
+package pl.kamrar.gjmh.model;
 
 import lombok.Data;
 
