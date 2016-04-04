@@ -7,6 +7,7 @@ import io.vertx.rxjava.ext.web.handler.StaticHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.kamrar.gjmh.model.Product;
+import pl.kamrar.gjmh.model.repository.OrderRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 @Component
@@ -17,7 +18,7 @@ public class ProductHandler extends DefaultVerticle {
     @Autowired
     private Router router;
 
-    private Product product = new Product(0, "test", 2.2);
+    private Product product = new Product("test", 2.2);
 
     @Override
     public void start() throws Exception {
