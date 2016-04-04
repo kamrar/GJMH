@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.kamrar.gjmh.model.repository.OrderRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
-import rx.Observable;
 
 @Component
 public class OrderHandler extends DefaultVerticle {
@@ -29,12 +28,13 @@ public class OrderHandler extends DefaultVerticle {
         router.get(API_V1_ORDER).handler(this::findAll);
         router.post(API_V1_ORDER).handler(this::insert);
         router.put(API_V1_ORDER + "/:id").handler(this::update);
+        router.delete(API_V1_ORDER + "/:id").handler(this::remove);
     }
 
     public void find(RoutingContext routingContext) {
         final String id = routingContext.request().getParam("id");
-        orderRepository.findOne(id).subscribe(entries -> {
-            if (entries.isEmpty()) {
+        orderRepository.find(id).subscribe(entries -> {
+            if (entries == null) {
                 routingContext.response()
                         .setStatusCode(404).end();
             } else {
@@ -47,7 +47,7 @@ public class OrderHandler extends DefaultVerticle {
     }
 
     public void findAll(RoutingContext routingContext) {
-        orderRepository.find().subscribe(entries -> {
+        orderRepository.findAll().subscribe(entries -> {
             if (entries.isEmpty()) {
                 routingContext.response()
                         .setStatusCode(404).end();
@@ -76,7 +76,25 @@ public class OrderHandler extends DefaultVerticle {
         String id = routingContext.request().getParam("id");
         JsonObject order = routingContext.getBodyAsJson();
         //TODO json validation
-        orderRepository.update(id, order).subscribe();
-        routingContext.response().end();
+        orderRepository.find(id).subscribe(entries -> {
+            if(entries == null){
+                routingContext.response().setStatusCode(204).end();
+            } else {
+                orderRepository.update(id, order);
+                routingContext.response().setStatusCode(200).end();
+            }
+        });
+    }
+
+    public void remove(RoutingContext routingContext){
+        String id = routingContext.request().getParam("id");
+        orderRepository.find(id).subscribe(entries -> {
+            if(entries == null){
+                routingContext.response().setStatusCode(204).end();
+            } else {
+                orderRepository.remove(id);
+                routingContext.response().setStatusCode(200).end();
+            }
+        });
     }
 }
