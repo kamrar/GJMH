@@ -7,7 +7,6 @@ import io.vertx.rxjava.ext.web.handler.StaticHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.kamrar.gjmh.model.Product;
-import pl.kamrar.gjmh.model.repository.OrderRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 @Component
