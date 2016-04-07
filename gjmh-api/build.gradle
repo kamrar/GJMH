@@ -22,7 +22,8 @@ dependencies {
         compile('io.vertx:vertx-core:3.2.1')
         compile('io.vertx:vertx-web:3.2.1')
         compile('io.vertx:vertx-rx-java:3.2.1')
-        compile 'io.vertx:vertx-mongo-client:3.2.1'
+        compile('io.vertx:vertx-mongo-client:3.2.1')
+        compile('org.apache.commons:commons-lang3:3.0')
         testCompile('io.vertx:vertx-unit:3.2.1')
         testCompile('junit:junit:4.12')
         provided('org.projectlombok:lombok:1.16.8')
