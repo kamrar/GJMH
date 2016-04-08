@@ -1,6 +1,5 @@
 package pl.kamrar.gjmh.verticle.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.FindOptions;
@@ -11,15 +10,13 @@ import io.vertx.rxjava.ext.web.handler.BodyHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.kamrar.gjmh.model.Model;
 import pl.kamrar.gjmh.model.Order;
 import pl.kamrar.gjmh.model.repository.OrderRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.IOException;
 import java.util.Set;
 
 @Component
@@ -88,18 +85,18 @@ public class OrderHandler extends DefaultVerticle {
     }
 
     public void insert(RoutingContext routingContext) {
-        JsonObject orderJson = routingContext.getBodyAsJson();
-        Set<ConstraintViolation<Order>> constraintViolations = validateJson(orderJson);
+        final Order order = Order.order(routingContext.getBodyAsString());
+        Set<ConstraintViolation<Model>> constraintViolations = order.valid();
         HttpServerResponse response = routingContext.response();
 
-        orderRepository.insert(orderJson).subscribe(s -> {
+        orderRepository.insert(routingContext.getBodyAsJson()).subscribe(s -> {
             if (s.isEmpty()) {
                 response.setStatusCode(409);
             } else if (!constraintViolations.isEmpty()) {
                 //TODO add validation error messages
                 response.setStatusCode(400);
             } else {
-               response.setStatusCode(200);
+                response.setStatusCode(200);
             }
             response.end();
         });
@@ -129,16 +126,5 @@ public class OrderHandler extends DefaultVerticle {
                 routingContext.response().setStatusCode(200).end();
             }
         });
-    }
-
-    private Set<ConstraintViolation<Order>> validateJson(JsonObject jsonObject){
-        ObjectMapper mapper = new ObjectMapper();
-        Order order = null;
-        try {
-            order = mapper.readValue(jsonObject.encodePrettily(), Order.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return validatorFactory.getValidator().validate(order);
     }
 }

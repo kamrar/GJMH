@@ -6,16 +6,14 @@ import lombok.NoArgsConstructor;
 import pl.kamrar.gjmh.model.enumerate.OrderStatus;
 import pl.kamrar.gjmh.model.enumerate.OrderSubStatus;
 
-
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order implements Serializable {
+public class Order extends Model {
 
     @NotNull
     private String name;
@@ -33,4 +31,8 @@ public class Order implements Serializable {
     private OrderSubStatus orderSubStatus;
 
     private List<Product> productList;
+
+    public static Order order(String json) {
+        return (Order) Order.build(json, Order.class);
+    }
 }
