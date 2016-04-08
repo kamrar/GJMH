@@ -1,16 +1,26 @@
 package pl.kamrar.gjmh.verticle.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.FindOptions;
+import io.vertx.rxjava.core.http.HttpServerResponse;
 import io.vertx.rxjava.ext.web.Router;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.handler.BodyHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.kamrar.gjmh.model.Order;
 import pl.kamrar.gjmh.model.repository.OrderRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.io.IOException;
+import java.util.Set;
 
 @Component
 public class OrderHandler extends DefaultVerticle {
@@ -23,9 +33,12 @@ public class OrderHandler extends DefaultVerticle {
     @Autowired
     private Router router;
 
+    @Autowired
+    private ValidatorFactory validatorFactory;
+
     @Override
     public void start() throws Exception {
-        router.route("/api/v1/order*").handler(BodyHandler.create());
+        router.route(API_V1_ORDER + "*").handler(BodyHandler.create());
         router.get(API_V1_ORDER + "/:id").handler(this::find);
         router.get(API_V1_ORDER).handler(this::findAll);
         router.post(API_V1_ORDER).handler(this::insert);
@@ -52,10 +65,14 @@ public class OrderHandler extends DefaultVerticle {
         JsonObject findOptions = new JsonObject();
 
         String limit = routingContext.request().getParam("limit");
-        if(StringUtils.isNumeric(limit)){findOptions.put("limit", Integer.parseInt(limit));}
+        if (StringUtils.isNumeric(limit)) {
+            findOptions.put("limit", Integer.parseInt(limit));
+        }
 
         String offset = routingContext.request().getParam("offset");
-        if(StringUtils.isNumeric(offset)){findOptions.put("skip", Integer.parseInt(offset));}
+        if (StringUtils.isNumeric(offset)) {
+            findOptions.put("skip", Integer.parseInt(offset));
+        }
 
         orderRepository.findAll(new FindOptions(findOptions)).subscribe(entries -> {
             if (entries.isEmpty()) {
@@ -71,14 +88,20 @@ public class OrderHandler extends DefaultVerticle {
     }
 
     public void insert(RoutingContext routingContext) {
-        JsonObject order = routingContext.getBodyAsJson();
-        //TODO json validation
-        orderRepository.insert(order).subscribe(s -> {
+        JsonObject orderJson = routingContext.getBodyAsJson();
+        Set<ConstraintViolation<Order>> constraintViolations = validateJson(orderJson);
+        HttpServerResponse response = routingContext.response();
+
+        orderRepository.insert(orderJson).subscribe(s -> {
             if (s.isEmpty()) {
-                routingContext.response().setStatusCode(409).end();
+                response.setStatusCode(409);
+            } else if (!constraintViolations.isEmpty()) {
+                //TODO add validation error messages
+                response.setStatusCode(400);
             } else {
-                routingContext.response().setStatusCode(200).end();
+               response.setStatusCode(200);
             }
+            response.end();
         });
     }
 
@@ -87,7 +110,7 @@ public class OrderHandler extends DefaultVerticle {
         JsonObject order = routingContext.getBodyAsJson();
         //TODO json validation
         orderRepository.find(id).subscribe(entries -> {
-            if(entries == null){
+            if (entries == null) {
                 routingContext.response().setStatusCode(204).end();
             } else {
                 orderRepository.update(id, order);
@@ -96,15 +119,26 @@ public class OrderHandler extends DefaultVerticle {
         });
     }
 
-    public void remove(RoutingContext routingContext){
+    public void remove(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         orderRepository.find(id).subscribe(entries -> {
-            if(entries == null){
+            if (entries == null) {
                 routingContext.response().setStatusCode(204).end();
             } else {
                 orderRepository.remove(id);
                 routingContext.response().setStatusCode(200).end();
             }
         });
+    }
+
+    private Set<ConstraintViolation<Order>> validateJson(JsonObject jsonObject){
+        ObjectMapper mapper = new ObjectMapper();
+        Order order = null;
+        try {
+            order = mapper.readValue(jsonObject.encodePrettily(), Order.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return validatorFactory.getValidator().validate(order);
     }
 }
