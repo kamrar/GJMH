@@ -1,57 +1,55 @@
 package pl.kamrar.gjmh.verticle.api.auth;
 
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.json.Json;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.rxjava.ext.auth.AuthProvider;
+import io.vertx.rxjava.ext.auth.User;
 import io.vertx.rxjava.ext.web.Router;
 import io.vertx.rxjava.ext.web.RoutingContext;
-import io.vertx.rxjava.ext.web.handler.BodyHandler;
+import io.vertx.rxjava.ext.web.Session;
+import io.vertx.rxjava.ext.web.handler.RedirectAuthHandler;
+import io.vertx.rxjava.ext.web.handler.UserSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.kamrar.gjmh.model.entity.User;
-import pl.kamrar.gjmh.model.repository.UserRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 @Component
 public class AuthenticationHandler extends DefaultVerticle {
 
-    private static final String TOKEN = "token";
-    private static final String PROVIDER = "provider";
-
     @Autowired
     private Router router;
 
     @Autowired
-    private UserRepository userRepository;
+    private OAuth2Provider oAuth2Provider;
 
     @Override
     public void start() throws Exception {
-        router.route("/api/v1/authentication*").handler(BodyHandler.create());
-        router.post("/api/v1/authentication").handler(this::authenticate);
+        final AuthProvider authProvider = AuthProvider.newInstance(oAuth2Provider);
+        router.route().handler(UserSessionHandler.create(authProvider));
+        router.route("/api/v1/private/*").handler(RedirectAuthHandler.create(authProvider, "/app/index.html"));
+        router.route("/api/v1/login").handler(context -> authProvider.authenticate(context.getBodyAsJson(), resultHandler(context)));
+        router.route("/api/v1/logout").handler(context -> {
+            context.clearUser();
+            context.response().putHeader("location", "/").setStatusCode(302).end();
+        });
     }
 
-    private void authenticate(RoutingContext routingContext) {
-        final String token = routingContext.request().getHeader(TOKEN);
-        final String provider = routingContext.request().getHeader(PROVIDER);
+    private Handler<AsyncResult<User>> resultHandler(RoutingContext context) {
+        return res -> {
+            if (res.succeeded()) {
+                User user = res.result();
+                context.setUser(user);
 
-        AuthProvider authProvider = AuthProvider.provider(provider);
-
-        vertx.createHttpClient(new HttpClientOptions().setSsl(true)).getNow(443, authProvider.host(), authProvider.uri() + token, response ->
-                response.bodyHandler(body -> {
-                    if (authProvider.verify(body)) {
-                        auth(routingContext.getBodyAsString());
-                        routingContext.response().setStatusCode(200).end();
-                    } else {
-                        routingContext.response().setStatusCode(401).end();
-                    }
-                }));
-    }
-
-    private void auth(String bodyAsString) {
-        final User user = Json.decodeValue(bodyAsString,
-                User.class);
-        User authUser = userRepository.findByEmail(user.getEmail());
-        if (authUser == null) {
-            authUser = userRepository.save(user);
-        }
+                final Session session = context.session();
+                if (session != null) {
+//                    String returnURL = session.remove("returnURL");
+//                    context.response().putHeader("location", returnURL).setStatusCode(302).end();
+//                    return;
+                }
+                context.response().putHeader("location", "/api/v1/private/product").setStatusCode(302).end();
+            } else {
+                context.fail(403);
+            }
+        };
     }
 }

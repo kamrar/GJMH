@@ -9,31 +9,29 @@
     <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
     <script>
         function onSignIn(googleUser) {
-            var profile = googleUser.getBasicProfile();
-
+            var userProfile = googleUser.getBasicProfile();
             var token = googleUser.getAuthResponse().id_token;
-
             var profileJson = {
-                "firstName": profile.getGivenName(),
-                "lastName": profile.getFamilyName(),
-                "email": profile.getEmail(),
-                "image": profile.getImageUrl()
+                "firstName": userProfile.getGivenName(),
+                "lastName": userProfile.getFamilyName(),
+                "email": userProfile.getEmail(),
+                "image": userProfile.getImageUrl(),
+                "token": token,
+                "provider": "google"
             };
-
             $.ajax({
-                url: "/api/v1/authentication/",
+                url: "/api/v1/login/",
                 type: "POST",
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Content-Type", "application/json");
                     xhr.setRequestHeader("Accept", "application/json");
-                    xhr.setRequestHeader("token", token);
-                    xhr.setRequestHeader("provider", "google");
                 },
                 data: JSON.stringify(profileJson),
-                dataType: "json"
+                dataType: "json",
+                success: function (data) {
+                    alert("Product: " + data.name);
+                }
             })
-
-
         }
         function signOut() {
             var auth2 = gapi.auth2.getAuthInstance();
