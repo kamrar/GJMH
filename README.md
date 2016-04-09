@@ -1,4 +1,4 @@
-gdzie_jest_moj_hajs [![Build Status](https://travis-ci.org/kamrar/GJMH.svg?branch=master)](https://travis-ci.org/kamrar/GJMH)
+gdzie_jest_moj_hajs [![Build Status](https://travis-ci.org/kamrar/GJMH.svg?branch=master)](https://travis-ci.org/kamrar/GJMH) [![Sputnik](https://sputnik.ci/conf/badge)](https://sputnik.ci/app#/builds/kamrar/GJMH)
 ------------
 
 # Installation
