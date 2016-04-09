@@ -1,12 +1,13 @@
-package pl.kamrar.zarcie.example.complex.verticle.api;
+package pl.kamrar.gjmh.verticle.api;
 
 import io.vertx.core.json.Json;
 import io.vertx.rxjava.ext.web.Router;
 import io.vertx.rxjava.ext.web.RoutingContext;
+import io.vertx.rxjava.ext.web.handler.StaticHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.kamrar.zarcie.example.complex.entity.Product;
-import pl.kamrar.zarcie.example.complex.verticle.helper.DefaultVerticle;
+import pl.kamrar.gjmh.model.Product;
+import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 @Component
 public class ProductHandler extends DefaultVerticle {
@@ -23,6 +24,7 @@ public class ProductHandler extends DefaultVerticle {
         router.get(API_V1_PRODUCT).handler(this::getAll);
         router.get(API_V1_PRODUCT + "/:id").handler(this::getOne);
         router.post(API_V1_PRODUCT).handler(this::addOne);
+        router.route("/*").handler(StaticHandler.create("web"));
     }
 
     private void getAll(RoutingContext routingContext) {

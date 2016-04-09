@@ -1,4 +1,4 @@
-package pl.kamrar.zarcie.example.complex.verticle.helper;
+package pl.kamrar.gjmh.verticle.helper;
 
 import io.vertx.core.Vertx;
 import io.vertx.rxjava.core.AbstractVerticle;
