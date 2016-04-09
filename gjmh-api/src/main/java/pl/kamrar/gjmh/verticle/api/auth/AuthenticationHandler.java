@@ -41,11 +41,11 @@ public class AuthenticationHandler extends DefaultVerticle {
                 context.setUser(user);
 
                 final Session session = context.session();
-//                if (session != null) {
+                if (session != null) {
 //                    String returnURL = session.remove("returnURL");
 //                    context.response().putHeader("location", returnURL).setStatusCode(302).end();
 //                    return;
-//                }
+                }
                 context.response().putHeader("location", "/api/v1/private/product").setStatusCode(302).end();
             } else {
                 context.fail(403);
