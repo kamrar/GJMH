@@ -10,7 +10,6 @@
     <script>
         function onSignIn(googleUser) {
             var profile = googleUser.getBasicProfile();
-
             var token = googleUser.getAuthResponse().id_token;
 
             var profileJson = {
@@ -19,7 +18,6 @@
                 "email": profile.getEmail(),
                 "image": profile.getImageUrl()
             };
-
             $.ajax({
                 url: "/api/v1/authentication/",
                 type: "POST",
@@ -32,8 +30,6 @@
                 data: JSON.stringify(profileJson),
                 dataType: "json"
             })
-
-
         }
         function signOut() {
             var auth2 = gapi.auth2.getAuthInstance();
