@@ -2,6 +2,7 @@ package pl.kamrar.gjmh.verticle.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
@@ -9,7 +10,7 @@ import javax.validation.ValidatorFactory;
 public class GlobalValidatorFactory {
 
     @Bean
-    ValidatorFactory localValidatorBean(){
+    ValidatorFactory localValidatorBean() {
         return Validation.buildDefaultValidatorFactory();
     }
 }

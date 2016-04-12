@@ -39,18 +39,18 @@ public class Order extends Model {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @NotNull(message = "value can not be null")
-    private LocalDateTime order_date_time;
+    private LocalDateTime orderDateTime;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @NotNull(message = "value can not be null")
-    private LocalDateTime create_date_time;
+    private LocalDateTime createDateTime;
 
-    private OrderStatus order_status;
+    private OrderStatus orderStatus;
 
-    private OrderSubStatus order_sub_status;
+    private OrderSubStatus orderSubStatus;
 
-    private List<Product> product_list;
+    private List<Product> productList;
 
     public static Order order(String json) {
         return (Order) Order.build(json, Order.class);
