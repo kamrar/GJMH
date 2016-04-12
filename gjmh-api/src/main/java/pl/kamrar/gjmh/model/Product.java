@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Product extends Model{
+public class Product extends Model {
 
     private String _id;
 
@@ -24,6 +24,7 @@ public class Product extends Model{
     @NotNull(message = "value can not be null")
     private String order_id;
 
-    public static Product product(String json) { return (Product) Product.build(json, Product.class); }
-
+    public static Product product(String json) {
+        return (Product) Product.build(json, Product.class);
+    }
 }

@@ -3,6 +3,8 @@ package pl.kamrar.gjmh.model.repository;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.FindOptions;
 import io.vertx.rxjava.ext.mongo.MongoClient;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import rx.Observable;
 
@@ -14,7 +16,9 @@ public class MongoRepository<T> {
     @Autowired
     private MongoClient mongoClient;
 
-    String parametrizedClassSimpleName = ((Class<T>)
+    @Getter
+    @Setter
+    private String parametrizedClassSimpleName = ((Class<T>)
             ((ParameterizedType) getClass().getGenericSuperclass())
                     .getActualTypeArguments()[0]).getSimpleName().toLowerCase();
 
@@ -39,4 +43,5 @@ public class MongoRepository<T> {
         String typeParamName = parametrizedClassSimpleName;
         return mongoClient.removeObservable(typeParamName, new JsonObject().put("_id", id));
     }
+
 }
