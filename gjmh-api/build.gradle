@@ -28,6 +28,7 @@ dependencies {
         compile('org.hibernate:hibernate-validator-annotation-processor:5.0.1.Final')
         compile('javax.el:el-api:2.2')
         compile('org.apache.commons:commons-lang3:3.0')
+        compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.3')
         testCompile('io.vertx:vertx-unit:3.2.1')
         testCompile('junit:junit:4.12')
         provided('org.projectlombok:lombok:1.16.8')

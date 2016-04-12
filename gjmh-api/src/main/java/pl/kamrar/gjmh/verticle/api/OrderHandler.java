@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.kamrar.gjmh.model.Model;
 import pl.kamrar.gjmh.model.Order;
+import pl.kamrar.gjmh.model.Product;
 import pl.kamrar.gjmh.model.repository.OrderRepository;
+import pl.kamrar.gjmh.model.repository.ProductRepository;
 import pl.kamrar.gjmh.verticle.helper.DefaultVerticle;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ValidatorFactory;
 import java.util.Set;
 
 @Component
@@ -28,10 +29,10 @@ public class OrderHandler extends DefaultVerticle {
     private OrderRepository orderRepository;
 
     @Autowired
-    private Router router;
+    private ProductRepository productRepository;
 
     @Autowired
-    private ValidatorFactory validatorFactory;
+    private Router router;
 
     @Override
     public void start() throws Exception {
@@ -50,10 +51,13 @@ public class OrderHandler extends DefaultVerticle {
                 routingContext.response()
                         .setStatusCode(404).end();
             } else {
-                routingContext.response()
-                        .setStatusCode(200)
-                        .putHeader("content-type", "application/json; charset=utf-8")
-                        .end(Json.encodePrettily(entries));
+                productRepository.findAll(new FindOptions(new JsonObject().put("order_id", id))).subscribe(jsonObjects -> {
+                    entries.put("product_list", jsonObjects);
+                    routingContext.response()
+                            .setStatusCode(200)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(entries));
+                });
             }
         });
     }
@@ -71,15 +75,21 @@ public class OrderHandler extends DefaultVerticle {
             findOptions.put("skip", Integer.parseInt(offset));
         }
 
-        orderRepository.findAll(new FindOptions(findOptions)).subscribe(entries -> {
-            if (entries.isEmpty()) {
+        orderRepository.findAll(new FindOptions(findOptions)).subscribe(orderJsons -> {
+            if (orderJsons.isEmpty()) {
                 routingContext.response()
                         .setStatusCode(404).end();
             } else {
-                routingContext.response()
-                        .setStatusCode(200)
-                        .putHeader("content-type", "application/json; charset=utf-8")
-                        .end(Json.encodePrettily(entries));
+                orderJsons.forEach(orderJson -> {
+                    String orderId = orderJson.getString("_id");
+                    productRepository.findAll(new FindOptions(new JsonObject().put("order_id", orderId))).subscribe(productJsons -> {
+                        orderJson.put("product_list", productJsons);
+                        routingContext.response()
+                                .setStatusCode(200)
+                                .putHeader("content-type", "application/json; charset=utf-8")
+                                .end(Json.encodePrettily(orderJsons));
+                    });
+                });
             }
         });
     }
@@ -89,41 +99,66 @@ public class OrderHandler extends DefaultVerticle {
         Set<ConstraintViolation<Model>> constraintViolations = order.valid();
         HttpServerResponse response = routingContext.response();
 
-        orderRepository.insert(routingContext.getBodyAsJson()).subscribe(s -> {
-            if (s.isEmpty()) {
-                response.setStatusCode(409);
-            } else if (!constraintViolations.isEmpty()) {
-                //TODO add validation error messages
-                response.setStatusCode(400);
-            } else {
-                response.setStatusCode(200);
-            }
-            response.end();
-        });
+        if (constraintViolations.isEmpty()) {
+            orderRepository.insert(routingContext.getBodyAsJson()).subscribe(s -> {
+                if (s.isEmpty()) {
+                    response.setStatusCode(409).end();
+                } else {
+                    response.setStatusCode(200).end();
+                }
+            });
+        } else {
+            JsonObject bodyJson = new JsonObject();
+            constraintViolations.stream().forEach(constraintViolation ->
+                    bodyJson.put(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage()));
+            response
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .setStatusCode(400)
+                    .end(bodyJson.encodePrettily());
+        }
     }
 
     public void update(RoutingContext routingContext) {
-        String id = routingContext.request().getParam("id");
-        JsonObject order = routingContext.getBodyAsJson();
-        //TODO json validation
-        orderRepository.find(id).subscribe(entries -> {
-            if (entries == null) {
-                routingContext.response().setStatusCode(204).end();
-            } else {
-                orderRepository.update(id, order);
-                routingContext.response().setStatusCode(200).end();
-            }
-        });
+        final Order order = Order.order(routingContext.getBodyAsJson().encodePrettily());
+        Set<ConstraintViolation<Model>> constraintViolations = order.valid();
+        HttpServerResponse response = routingContext.response();
+
+        if (constraintViolations.isEmpty()) {
+            String orderId = routingContext.request().getParam("id");
+            orderRepository.find(orderId).subscribe(entries -> {
+                if (entries == null) {
+                    response.setStatusCode(204).end();
+                } else {
+                    JsonObject orderJson = routingContext.getBodyAsJson();
+                    orderRepository.update(orderId, orderJson);
+                    response.setStatusCode(200).end();
+                }
+            });
+        } else {
+            JsonObject bodyJson = new JsonObject();
+            constraintViolations.stream().forEach(constraintViolation ->
+                    bodyJson.put(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage()));
+            response
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .setStatusCode(400)
+                    .end(bodyJson.encodePrettily());
+        }
     }
 
     public void remove(RoutingContext routingContext) {
-        String id = routingContext.request().getParam("id");
-        orderRepository.find(id).subscribe(entries -> {
+        String orderId = routingContext.request().getParam("id");
+        orderRepository.find(orderId).subscribe(entries -> {
             if (entries == null) {
                 routingContext.response().setStatusCode(204).end();
             } else {
-                orderRepository.remove(id);
-                routingContext.response().setStatusCode(200).end();
+                orderRepository.remove(orderId);
+                productRepository.findAll(new FindOptions(new JsonObject().put("order_id", orderId))).subscribe(productJsons -> {
+                    productJsons.forEach(productJson -> {
+                        String productId = Product.product(productJson.encodePrettily()).get_id();
+                        productRepository.remove(productId);
+                        routingContext.response().setStatusCode(200).end();
+                    });
+                });
             }
         });
     }
