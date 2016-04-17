@@ -51,7 +51,7 @@ public class OrderHandler extends DefaultVerticle {
                 routingContext.response()
                         .setStatusCode(404).end();
             } else {
-                productRepository.findAll(new FindOptions(new JsonObject().put("order_id", id))).subscribe(jsonObjects -> {
+                productRepository.findAll(new JsonObject().put("order_id", id)).subscribe(jsonObjects -> {
                     entries.put("product_list", jsonObjects);
                     routingContext.response()
                             .setStatusCode(200)
@@ -75,21 +75,15 @@ public class OrderHandler extends DefaultVerticle {
             findOptions.put("skip", Integer.parseInt(offset));
         }
 
-        orderRepository.findAll(new FindOptions(findOptions)).subscribe(orderJsons -> {
+        orderRepository.findAll(findOptions).subscribe(orderJsons -> {
             if (orderJsons.isEmpty()) {
                 routingContext.response()
                         .setStatusCode(404).end();
             } else {
-                orderJsons.forEach(orderJson -> {
-                    String orderId = orderJson.getString("_id");
-                    productRepository.findAll(new FindOptions(new JsonObject().put("order_id", orderId))).subscribe(productJsons -> {
-                        orderJson.put("product_list", productJsons);
-                        routingContext.response()
-                                .setStatusCode(200)
-                                .putHeader("content-type", "application/json; charset=utf-8")
-                                .end(Json.encodePrettily(orderJsons));
-                    });
-                });
+                routingContext.response()
+                        .setStatusCode(200)
+                        .putHeader("content-type", "application/json; charset=utf-8")
+                        .end(Json.encodePrettily(orderJsons));
             }
         });
     }
@@ -152,7 +146,7 @@ public class OrderHandler extends DefaultVerticle {
                 routingContext.response().setStatusCode(204).end();
             } else {
                 orderRepository.remove(orderId);
-                productRepository.findAll(new FindOptions(new JsonObject().put("order_id", orderId))).subscribe(productJsons -> {
+                productRepository.findAll(new JsonObject().put("order_id", orderId)).subscribe(productJsons -> {
                     productJsons.forEach(productJson -> {
                         String productId = Product.product(productJson.encodePrettily()).get_id();
                         productRepository.remove(productId);

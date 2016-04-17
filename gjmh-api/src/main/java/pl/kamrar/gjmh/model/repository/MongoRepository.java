@@ -13,6 +13,8 @@ import java.util.List;
 
 public class MongoRepository<T> {
 
+    public static String ID = "_id";
+
     @Autowired
     private MongoClient mongoClient;
 
@@ -27,21 +29,20 @@ public class MongoRepository<T> {
     }
 
     public Observable<Void> update(String id, JsonObject jsonObject) {
-        jsonObject.put("_id", id);
-        return mongoClient.updateObservable(parametrizedClassSimpleName, new JsonObject().put("_id", id), new JsonObject().put("$set", parametrizedClassSimpleName));
+        return mongoClient.updateObservable(parametrizedClassSimpleName, new JsonObject().put(ID, id), new JsonObject().put("$set", jsonObject));
     }
 
     public Observable<JsonObject> find(String id) {
-        return mongoClient.findOneObservable(parametrizedClassSimpleName, new JsonObject().put("_id", id), null);
+        return mongoClient.findOneObservable(parametrizedClassSimpleName, new JsonObject().put(ID, id), null);
     }
 
-    public Observable<List<JsonObject>> findAll(FindOptions findOptions) {
-        return mongoClient.findWithOptionsObservable(parametrizedClassSimpleName, new JsonObject(), findOptions);
+    public Observable<List<JsonObject>> findAll(JsonObject findOptions) {
+        return mongoClient.findWithOptionsObservable(parametrizedClassSimpleName, null, new FindOptions(findOptions));
     }
 
     public Observable<Void> remove(String id) {
         String typeParamName = parametrizedClassSimpleName;
-        return mongoClient.removeObservable(typeParamName, new JsonObject().put("_id", id));
+        return mongoClient.removeObservable(typeParamName, new JsonObject().put(ID, id));
     }
 
 }
